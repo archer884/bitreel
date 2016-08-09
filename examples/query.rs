@@ -15,10 +15,7 @@ fn main() {
         "https://www.youtube.com/watch?v=pG_euGOe0ww",
     ];
 
-    // On Windows, I do not have openssl available and https links just panic
-    let query_uris = query_uris.iter().filter(|query| !query.starts_with("https"));
     let client = YoutubeClient::new();
-
     for uri in query_uris {
         println!("{:?}", client.query(uri));
     }

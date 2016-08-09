@@ -24,7 +24,7 @@ impl Client for YoutubeClient {
 
     fn query(&self, uri: &str) -> Vec<Self::Video> {
         // todo: create error type
-        let response = http::download_string(uri).expect(&format!("failed to download uri ({:?})", uri));
+        let response = http::download_string(uri).expect(&format!("failed to download uri ({:?}); beware of redirects", uri));
         
         parse_videos(&response)
     } 
@@ -50,7 +50,7 @@ fn read_queries(source: &str) -> Vec<String> {
 }
 
 fn unscramble(s: &str) -> String {
-    s.replace("\u{0026}", "&")
+    s.replace("\\\\u0026", "&")
 }
 
 #[cfg(test)]
