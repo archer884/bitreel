@@ -4,6 +4,7 @@
 
 extern crate hyper;
 extern crate regex;
+extern crate urlparse;
 
 pub mod client;
 pub mod video;
