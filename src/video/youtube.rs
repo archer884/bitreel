@@ -22,7 +22,11 @@ impl CryptOp {
     }
 
     fn apply(&self, sig: &mut Vec<char>) {
-        unimplemented!()
+        match *self {
+            CryptOp::Reverse => *sig = sig.iter().cloned().rev().collect(),
+            CryptOp::Swap(idx) => sig.swap(0, idx),
+            CryptOp::Slice(idx) => *sig = sig.split_off(idx),
+        }
     }
 }
 
