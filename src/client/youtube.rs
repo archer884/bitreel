@@ -89,7 +89,7 @@ fn read_uris(source: &str) -> Vec<(String, Option<String>)> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn regex_patterns_work() {
+    fn regex_patterns_compile() {
         use client::youtube::{
             JS, 
             MAP, 

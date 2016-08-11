@@ -148,11 +148,47 @@ fn decrypt_function(js: &str) -> &str {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn regex_patterns_work() {
+    fn regex_patterns_compile() {
         use video::youtube::{
             DECRYPT_FUNC_NAME
         };
 
         DECRYPT_FUNC_NAME.is_match("");
-    } 
+    }
+
+    #[test]
+    fn swap() {
+        use video::youtube::CryptOp;
+
+        let op = CryptOp::Swap(4);
+        let target = ['e', 'b', 'c', 'd', 'a'];
+        let mut vec = vec!['a', 'b', 'c', 'd', 'e'];
+
+        op.apply(&mut vec);
+        assert_eq!(target, vec.as_ref());
+    }
+
+    #[test]
+    fn slice() {
+        use video::youtube::CryptOp;
+
+        let op = CryptOp::Slice(2);
+        let target = ['c', 'd', 'e'];
+        let mut vec = vec!['a', 'b', 'c', 'd', 'e'];
+
+        op.apply(&mut vec);
+        assert_eq!(target, vec.as_ref());
+    }
+
+    #[test]
+    fn reverse() {
+        use video::youtube::CryptOp;
+
+        let op = CryptOp::Reverse;
+        let target = ['e', 'd', 'c', 'b', 'a'];
+        let mut vec = vec!['a', 'b', 'c', 'd', 'e'];
+
+        op.apply(&mut vec);
+        assert_eq!(target, vec.as_ref());
+    }
 }
