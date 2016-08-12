@@ -3,7 +3,8 @@ use regex::Regex;
 use video::Video;
 
 lazy_static! {
-    static ref DECRYPT_FUNC_NAME: Regex = Regex::new(r#"\.sig\|\|(.+?)\(.+?\)"#).unwrap();
+    static ref DECRYPT_FUNC_NAME: Regex = Regex::new(r#"\.sig\|\|(\w+[.])?(\w+)\("#).unwrap();
+    static ref FUNC_ID: Regex = Regex::new(r#"(\w+)\("#).unwrap();
 }
 
 enum CryptOp {
@@ -14,11 +15,13 @@ enum CryptOp {
 
 impl CryptOp {
     fn swap(s: &str) -> CryptOp {
-        unimplemented!()
+        let numeric_values: String = s.chars().filter(|value| value.is_numeric()).collect();
+        CryptOp::Swap(numeric_values.parse().expect(&format!("swap unable to parse {:?} {:?} as number", s,numeric_values)))
     }
 
     fn slice(s: &str) -> CryptOp {
-        unimplemented!()
+        let numeric_values: String = s.chars().filter(|value| value.is_numeric()).collect();
+        CryptOp::Slice(numeric_values.parse().expect(&format!("swap unable to parse {:?} {:?} as number", s,numeric_values)))
     }
 
     fn apply(&self, sig: &mut Vec<char>) {
@@ -76,8 +79,9 @@ fn decrypt(uri: &str, js_player: &str, signature: &str) -> String {
 }
 
 fn discover_operations(js: &str) -> Vec<CryptOp> {
-    let function_pattern = Regex::new(&format!("{}=function\\(\\w\\){{(.*?)}}", decrypt_function(js))).expect("dynamic regex failed to compile");
-    let function_body = function_pattern.captures(js).and_then(|cap| cap.at(1)).expect("unable to capture decrypt function");
+    let pattern = format!("{}=function\\(\\w\\)\\{{(.*?)\\}}", decrypt_function(js));
+    let regex = Regex::new(&pattern).expect(&format!("dynamic regex failed to compile: {}", pattern));
+    let function_body = regex.captures(js).and_then(|cap| cap.at(1)).expect("unable to capture decrypt function");
 
     let mut reverse_id = None;
     let mut swap_id = None;
@@ -87,7 +91,7 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
         let id = get_id(&line);
 
         match reverse_id {
-            None => if is_reverse_id(&id) {
+            None => if is_reverse_id(id, js) {
                 reverse_id = Some(id.to_owned());
                 return CryptOp::Reverse;
             },
@@ -97,7 +101,7 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
         }
 
         match swap_id {
-            None => if is_swap_id(&id) {
+            None => if is_swap_id(id, js) {
                 swap_id = Some(id.to_owned());
                 return CryptOp::swap(line);
             },
@@ -107,7 +111,7 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
         }
 
         match slice_id {
-            None => if is_slice_id(&id) {
+            None => if is_slice_id(&id, &js) {
                 slice_id = Some(id.to_owned());
                 return CryptOp::slice(line);
             },
@@ -121,19 +125,25 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
 }
 
 fn get_id(s: &str) -> &str {
-    unimplemented!()
+    FUNC_ID.captures(s).and_then(|cap| cap.at(1)).unwrap_or("")
 }
 
-fn is_reverse_id(id: &str) -> bool {
-    unimplemented!()
+fn is_reverse_id(id: &str, js: &str) -> bool {
+    Regex::new(&format!("{}:\\bfunction\\b\\(\\w+\\)", id))
+        .map(|pattern| pattern.is_match(js))
+        .unwrap_or(false)
 }
 
-fn is_swap_id(id: &str) -> bool {
-    unimplemented!()
+fn is_swap_id(id: &str, js: &str) -> bool {
+    Regex::new(&format!("{}\\bfunction\\b\\(\\w+\\,\\w\\).\\bvar\\b.\\bc=a\\b", id))
+        .map(|pattern| pattern.is_match(js))
+        .unwrap_or(false)
 }
 
-fn is_slice_id(id: &str) -> bool {
-    unimplemented!()
+fn is_slice_id(id: &str, js: &str) -> bool {
+    Regex::new(&format!("{}:\\bfunction\\b\\([a],b\\).(\\breturn\\b)?.?\\w+\\.", id))
+        .map(|pattern| pattern.is_match(js))
+        .unwrap_or(false)
 }
 
 /// Returns the decryption function found in the javascript source code
@@ -142,18 +152,25 @@ fn decrypt_function(js: &str) -> &str {
     // whatever for this crap... I feel like rust's regex crate is good enough
     // I can just say fuck all that noise
 
-    DECRYPT_FUNC_NAME.captures(js).and_then(|cap| cap.at(1)).expect("unable to find decrypt function")
+    DECRYPT_FUNC_NAME.captures(js).and_then(|cap| cap.at(2)).expect("unable to find decrypt function")
 }
 
 #[cfg(test)]
 mod tests {
     #[test]
     fn regex_patterns_compile() {
+        use regex::Regex;
         use video::youtube::{
-            DECRYPT_FUNC_NAME
+            DECRYPT_FUNC_NAME,
+            FUNC_ID,
         };
 
         DECRYPT_FUNC_NAME.is_match("");
+        FUNC_ID.is_match("");
+
+        // this is an example of the dynamic regex used to find the decrypt function
+        let pattern = r#"by=function\(\w\)\{(.*?)\}"#;
+        Regex::new(pattern).unwrap();
     }
 
     #[test]
