@@ -87,40 +87,42 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
     let mut swap_id = None;
     let mut slice_id = None;
 
-    function_body.split(';').skip(1).filter(|line| !line.starts_with("return")).map(|line| {
+    // TODO: remove this, or turn it into an error return thing...
+    // this flat-map exists because I was considering just skipping invalid transforms
+    function_body.split(';').skip(1).filter(|line| !line.starts_with("return")).flat_map(|line| {
         let id = get_id(&line);
 
         match reverse_id {
             None => if is_reverse_id(id, js) {
                 reverse_id = Some(id.to_owned());
-                return CryptOp::Reverse;
+                return Some(CryptOp::Reverse);
             },
             Some(ref reverse_id) => if reverse_id == id {
-                return CryptOp::Reverse;
+                return Some(CryptOp::Reverse);
             }
         }
 
         match swap_id {
             None => if is_swap_id(id, js) {
                 swap_id = Some(id.to_owned());
-                return CryptOp::swap(line);
+                return Some(CryptOp::swap(line));
             },
             Some(ref swap_id) => if swap_id == id {
-                return CryptOp::swap(line);
+                return Some(CryptOp::swap(line));
             }
         }
 
         match slice_id {
             None => if is_slice_id(&id, &js) {
                 slice_id = Some(id.to_owned());
-                return CryptOp::slice(line);
+                return Some(CryptOp::slice(line));
             },
             Some(ref slice_id) => if slice_id == id {
-                return CryptOp::slice(line);
+                return Some(CryptOp::slice(line));
             }
         }
 
-        panic!("unknown crypto transform");
+        panic!(&format!("unknown transform: {} + {}", line, id);
     }).collect()
 }
 
@@ -135,7 +137,7 @@ fn is_reverse_id(id: &str, js: &str) -> bool {
 }
 
 fn is_swap_id(id: &str, js: &str) -> bool {
-    Regex::new(&format!("{}\\bfunction\\b\\(\\w+\\,\\w\\).\\bvar\\b.\\bc=a\\b", id))
+    Regex::new(&format!("{}:\\bfunction\\(\\w+,\\w+\\).\\bvar", id))
         .map(|pattern| pattern.is_match(js))
         .unwrap_or(false)
 }
