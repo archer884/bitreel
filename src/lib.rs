@@ -1,4 +1,4 @@
-#![feature(question_mark)]
+#![feature(conservative_impl_trait, question_mark)]
 
 #[macro_use] extern crate lazy_static;
 

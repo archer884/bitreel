@@ -7,10 +7,17 @@ lazy_static! {
     static ref FUNC_ID: Regex = Regex::new(r#"(\w+)\("#).unwrap();
 }
 
+/// A crypto operation that must be applied to the Youtube key value in order to convert
+/// from ciphertext to plaintext.
 enum CryptOp {
-    Reverse,        // reverses entire string
-    Swap(usize),    // swaps character at idx with first character
-    Slice(usize),   // removes characters up to idx
+    /// Reverses the entirety of the string
+    Reverse,
+    
+    /// Swaps the string at `usize` with the first character in the string 
+    Swap(usize),
+
+    /// Removes all characters up to `usize`
+    Slice(usize),
 }
 
 impl CryptOp {
@@ -78,7 +85,7 @@ fn decrypt(uri: &str, js_player: &str, signature: &str) -> String {
     format!("{}&signature={}", uri, signature)
 }
 
-fn discover_operations(js: &str) -> Vec<CryptOp> {
+fn discover_operations<'a>(js: &'a str) -> impl Iterator<Item = CryptOp> + 'a {
     let pattern = format!("{}=function\\(\\w\\)\\{{(.*?)\\}}", decrypt_function(js));
     let regex = Regex::new(&pattern).expect(&format!("dynamic regex failed to compile: {}", pattern));
     let function_body = regex.captures(js).and_then(|cap| cap.at(1)).expect("unable to capture decrypt function");
@@ -89,7 +96,7 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
 
     // TODO: remove this, or turn it into an error return thing...
     // this flat-map exists because I was considering just skipping invalid transforms
-    function_body.split(';').skip(1).filter(|line| !line.starts_with("return")).flat_map(|line| {
+    function_body.split(';').skip(1).filter(|line| !line.starts_with("return")).flat_map(move |line| {
         let id = get_id(&line);
 
         match reverse_id {
@@ -122,8 +129,8 @@ fn discover_operations(js: &str) -> Vec<CryptOp> {
             }
         }
 
-        panic!(&format!("unknown transform: {} + {}", line, id);
-    }).collect()
+        panic!(format!("unknown transform: {} + {}", line, id));
+    })
 }
 
 fn get_id(s: &str) -> &str {
