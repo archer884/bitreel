@@ -4,11 +4,4 @@ version = "0.1.0"
 authors = ["J/A <archer884@gmail.com>"]
 
 [dependencies]
-hyper = {version = "0.9", default-features = false}
-lazy_static = "0.2"
-regex = "0.1"
-urlparse = "0.7"
-
-[features]
-default = ["ssl"]
-ssl = ["hyper/ssl"]
+hyper = "*"
