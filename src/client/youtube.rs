@@ -1,6 +1,7 @@
 use client::Client;
 use error::*;
 use http;
+use hyper;
 use std::collections::HashMap;
 use video::YoutubeVideo;
 
@@ -16,9 +17,9 @@ impl YoutubeClient {
 impl Client for YoutubeClient {
     type Video = YoutubeVideo;
 
-    fn query(&self, video: &str) -> Result<Self::Video> {
+    fn query(&self, video: &str, client: &hyper::Client) -> Result<Self::Video> {
         let uri = format!("http://youtube.com/get_video_info?video_id={}", video);
-        let info = http::download_string(&uri)?;
+        let info = http::download_string(client, &uri)?;
         parse_videos(&info)
     }
 }
