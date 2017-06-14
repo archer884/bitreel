@@ -17,7 +17,8 @@ impl Client for YoutubeClient {
 
     fn query<C: ClientConnector>(&self, identifier: &str, connector: &C) -> Result<Self::Video> {
         let uri = format!("http://youtube.com/get_video_info?video_id={}", identifier);
-        let info = connector.download_string(&uri)?;
+        let info = connector.download_string(&uri)
+            .map_err(|e| Error::network("Unable to download resource", e))?;
         parse_videos(&info)
     }
 }

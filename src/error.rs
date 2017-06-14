@@ -22,11 +22,11 @@ impl Error {
         Error { kind, description, cause: None }
     }
 
-    pub fn network<T: error::Error + 'static>(description: &'static str, cause: Option<T>) -> Error {
+    pub fn network<E: error::Error + 'static>(description: &'static str, cause: E) -> Error {
         Error {
             kind: ErrorKind::Network,
             description,
-            cause: cause.map(|e| Box::new(e) as Box<error::Error>),
+            cause: Some(Box::new(cause)),
         }
     }
 
