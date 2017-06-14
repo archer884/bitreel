@@ -1,12 +1,17 @@
 mod youtube;
 
 use error::Result;
-use hyper;
+use std::error;
 use video::Video;
 
 pub use client::youtube::YoutubeClient;
 
 pub trait Client {
     type Video: Video;
-    fn query(&self, uri: &str, client: &hyper::Client) -> Result<Self::Video>;
+    fn query<C: ClientConnector>(&self, identifier: &str, connector: &C) -> Result<Self::Video>;
+}
+
+pub trait ClientConnector {
+    type Err: error::Error;
+    fn download_string(&self, uri: &str) -> Result<String>;
 }

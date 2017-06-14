@@ -1,4 +1,3 @@
-use hyper;
 use std::error;
 use std::fmt;
 use std::result;
@@ -9,17 +8,26 @@ pub type Result<T> = result::Result<T, Error>;
 pub struct Error {
     kind: ErrorKind,
     description: &'static str,
+    cause: Option<Box<error::Error>>,
 }
 
 #[derive(Debug)]
 pub enum ErrorKind {
-    Network(hyper::Error),
+    Network,
     Video,
 }
 
 impl Error {
     pub fn new(kind: ErrorKind, description: &'static str) -> Error {
-        Error { kind, description }
+        Error { kind, description, cause: None }
+    }
+
+    pub fn network<T: error::Error + 'static>(description: &'static str, cause: Option<T>) -> Error {
+        Error {
+            kind: ErrorKind::Network,
+            description,
+            cause: cause.map(|e| Box::new(e) as Box<error::Error>),
+        }
     }
 
     pub fn video(description: &'static str) -> Error {
@@ -39,18 +47,9 @@ impl error::Error for Error {
     }
 
     fn cause(&self) -> Option<&error::Error> {
-        match self.kind {
-            ErrorKind::Network(ref error) => Some(error),
-            _ => None,
+        match self.cause {
+            Some(ref e) => Some(e.as_ref()),
+            None => None,
         }
     }
-}
-
-impl From<hyper::Error> for Error {
-    fn from(error: hyper::Error) -> Error {
-        Error {
-            kind: ErrorKind::Network(error),
-            description: "network error",
-        }
-    }    
 }

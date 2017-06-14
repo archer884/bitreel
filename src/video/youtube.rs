@@ -1,5 +1,5 @@
-use video::Video;
 use std::collections::HashMap;
+use video::Video;
 
 #[derive(Debug)]
 pub struct YoutubeVideo {

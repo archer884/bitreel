@@ -1,7 +1,5 @@
-use client::Client;
+use client::*;
 use error::*;
-use http;
-use hyper;
 use std::collections::HashMap;
 use video::YoutubeVideo;
 
@@ -17,9 +15,9 @@ impl YoutubeClient {
 impl Client for YoutubeClient {
     type Video = YoutubeVideo;
 
-    fn query(&self, video: &str, client: &hyper::Client) -> Result<Self::Video> {
-        let uri = format!("http://youtube.com/get_video_info?video_id={}", video);
-        let info = http::download_string(client, &uri)?;
+    fn query<C: ClientConnector>(&self, identifier: &str, connector: &C) -> Result<Self::Video> {
+        let uri = format!("http://youtube.com/get_video_info?video_id={}", identifier);
+        let info = connector.download_string(&uri)?;
         parse_videos(&info)
     }
 }
@@ -40,7 +38,7 @@ fn parse_videos(info: &str) -> Result<YoutubeVideo> {
 }
 
 fn map_url(url: &str) -> HashMap<String, String> {
-    use hyper::Url;
+    use url::Url;
 
     // In theory, the video-info repsonse from youtube contains information about the video encoded as a url
     // for no goddamn reason. This imaginary url (based on work by a guy named smoqadam) allows me to use
