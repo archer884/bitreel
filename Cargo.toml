@@ -6,7 +6,7 @@ license = "MIT/Apache-2.0"
 repository = "https://github.com/archer884/bitreel"
 homepage = "https://github.com/archer884/bitreel"
 keywords = ["video", "youtube"]
-categories = ["multimedia::videos"]
+categories = ["multimedia::video"]
 readme = "README.md"
 description = """
 A library for getting video information from YouTube and other similar sites.
