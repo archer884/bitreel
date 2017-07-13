@@ -9,7 +9,7 @@ pub use client::youtube::YoutubeClient;
 
 pub trait Client {
     type Video: Video;
-    fn query<C: ClientConnector>(&self, identifier: &str, connector: &C) -> Result<Self::Video>;
+    fn query(&self, identifier: &str) -> Result<Self::Video>;
 }
 
 pub trait ClientConnector {

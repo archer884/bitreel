@@ -4,20 +4,20 @@ use std::collections::HashMap;
 use video::YoutubeVideo;
 
 #[derive(Default)]
-pub struct YoutubeClient;
+pub struct YoutubeClient<T> { connector: T }
 
-impl YoutubeClient {
-    pub fn new() -> YoutubeClient {
-        YoutubeClient
+impl<T: ClientConnector> YoutubeClient<T> {
+    pub fn new(connector: T) -> YoutubeClient<T> {
+        YoutubeClient { connector }
     }
 }
 
-impl Client for YoutubeClient {
+impl<T: ClientConnector> Client for YoutubeClient<T> {
     type Video = YoutubeVideo;
 
-    fn query<C: ClientConnector>(&self, identifier: &str, connector: &C) -> Result<Self::Video> {
+    fn query(&self, identifier: &str) -> Result<Self::Video> {
         let uri = format!("http://youtube.com/get_video_info?video_id={}", identifier);
-        let info = connector.download_string(&uri)
+        let info = self.connector.download_string(&uri)
             .map_err(|e| Error::network("Unable to download resource", e))?;
         parse_videos(&info)
     }
