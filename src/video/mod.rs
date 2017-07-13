@@ -4,5 +4,6 @@ pub use video::youtube::YoutubeVideo;
 
 pub trait Video {
     fn title(&self) -> &str;
-    fn format(&self, f: &str) -> Option<&str>;
+    fn get_url(&self, format: &str) -> Option<&str>;
+    fn list_formats<'a>(&'a self) -> Box<Iterator<Item=&'a str> + 'a>;
 }

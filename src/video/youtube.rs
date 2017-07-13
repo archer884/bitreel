@@ -18,7 +18,11 @@ impl Video for YoutubeVideo {
         &self.title
     }
     
-    fn format(&self, f: &str) -> Option<&str> {
-        self.streams.get(&f.to_lowercase()).map(|s| s.as_ref())
+    fn get_url(&self, format: &str) -> Option<&str> {
+        self.streams.get(&format.to_lowercase()).map(|s| s.as_ref())
+    }
+
+    fn list_formats<'a>(&'a self) -> Box<Iterator<Item=&'a str> + 'a> {
+        Box::new(self.streams.keys().map(|s| s.as_ref()))
     }
 }
