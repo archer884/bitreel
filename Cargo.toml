@@ -12,5 +12,14 @@ description = """
 A library for getting video information from YouTube and other similar sites.
 """
 
+[features]
+default = ["default-connector"]
+default-connector = ["reqwest"]
+
 [dependencies]
+regex = "0.2"
 url = "1.5"
+
+[dependencies.reqwest]
+version = "0.7"
+optional = true
