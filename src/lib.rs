@@ -1,3 +1,7 @@
+#[cfg(feature = "default-connector")]
+extern crate reqwest;
+
+extern crate regex;
 extern crate url;
 
 pub mod client;

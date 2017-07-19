@@ -4,11 +4,17 @@
 
 So far, this crate basically just allows you to query youtube for videos and available formats.
 
+## Changelog
+
+* **v0.2:** threw out entire interface. The hope is to eventually support facebook videos, at least, but as of now we still don't have a way to authenticate to facebook.
+
 ## License
 
 Licensed under either of
- * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
 at your option.
 
 ### Contribution

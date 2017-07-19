@@ -1,6 +1,6 @@
 [package]
 name = "bitreel"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["J/A <archer884@gmail.com>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/archer884/bitreel"
@@ -12,5 +12,14 @@ description = """
 A library for getting video information from YouTube and other similar sites.
 """
 
+[features]
+default = ["default-connector"]
+default-connector = ["reqwest"]
+
 [dependencies]
+regex = "0.2"
 url = "1.5"
+
+[dependencies.reqwest]
+version = "0.7"
+optional = true
