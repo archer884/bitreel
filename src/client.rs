@@ -91,9 +91,9 @@ impl str::FromStr for QueryType {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        // Here's the issue: because you need to authenticate to access facebook, we do not 
+        // Here's the issue: because you need to authenticate to access facebook, we do not
         // support downloading facebook videos right now. I may be wrong about this. There
-        // might be some videos you can get to on facebook *without* logging in, in which case 
+        // might be some videos you can get to on facebook *without* logging in, in which case
         // commenting this out is a dumb idea--but I'm assuming this is correct for right now.
 
         // if s.contains("facebook.com") {
@@ -141,6 +141,7 @@ fn parse_youtube_streams(info: &str) -> Result<HashMap<StreamKey, String>> {
         // In theory, the video-info repsonse from youtube contains information about the video encoded as a url
         // for no goddamn reason. This imaginary url (based on work by a guy named smoqadam) allows me to use
         // a standard issue URL parser to find out what's in it.
+
         let fake_url = format!("http://thanks-smoqadam.com?{}", url);
         let parsed_url = Url::parse(&fake_url).expect("invalid url");
 
@@ -163,9 +164,9 @@ fn parse_youtube_streams(info: &str) -> Result<HashMap<StreamKey, String>> {
 fn parse_facebook_streams(s: &str) -> Result<HashMap<StreamKey, String>> {
     let sd_pattern = Regex::new(r#"sd_src:"([^"]+)""#).unwrap();
     let hd_pattern = Regex::new(r#"hd_src:"([^"]+)""#).unwrap();
-    
-    // Here we employ determinant parsing for the Facebook streams. I feel like we should do the 
-    // same thing for YouTube, because I think that would be a good deal easier to read, but... 
+
+    // Here we employ determinant parsing for the Facebook streams. I feel like we should do the
+    // same thing for YouTube, because I think that would be a good deal easier to read, but...
     // /shrug
 
     let mut streams = HashMap::new();
