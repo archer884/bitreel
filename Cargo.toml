@@ -13,13 +13,22 @@ A library for getting video information from YouTube and other similar sites.
 """
 
 [features]
-default = ["default-connector"]
+default = ["default-connector", "evil-mode"]
 default-connector = ["reqwest"]
+evil-mode = ["lazy_static", "urlparse"]
 
 [dependencies]
 regex = "0.2"
 url = "1.5"
 
 [dependencies.reqwest]
+version = "0.7"
+optional = true
+
+[dependencies.lazy_static]
+version = "*"
+optional = true
+
+[dependencies.urlparse]
 version = "0.7"
 optional = true
